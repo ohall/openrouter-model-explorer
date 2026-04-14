@@ -29,3 +29,19 @@ node ./bin/openrouter.js key info
 ```
 
 Run `node ./bin/openrouter.js --help` for the full command reference.
+
+## Agent and script integration
+
+- Use `--json` for machine-readable output on all data commands.
+- In `--json` mode, failures are emitted on `stderr` as a single-line JSON object:
+  `{"error":{"code":"...","message":"..."}}`
+- Successful command payloads are emitted on `stdout`.
+- Use `--version` (or `-v`) to detect installed capabilities before issuing commands.
+
+### Exit codes
+
+- `0`: success
+- `1`: invalid input or usage error
+- `2`: authentication error (missing or rejected API key)
+- `3`: API returned an error response
+- `4`: network/transport failure (including timeout)
