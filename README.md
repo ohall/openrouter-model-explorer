@@ -1,34 +1,87 @@
 # openrouter-cli
 
-Small Node.js CLI for OpenRouter model discovery with no runtime dependencies.
+Dependency-light Node.js package for OpenRouter model discovery. It works both as a CLI and as an importable module, using built-in Node APIs instead of runtime helper libraries.
 
-## Quick start
+## Install
 
 ```bash
-npm install
-OPENROUTER_API_KEY=sk-or-v1-... node ./bin/openrouter.js models user
+npm install openrouter-cli
 ```
 
-## Common commands
+For one-off CLI usage:
+
+```bash
+npx openrouter-cli --help
+```
+
+For a global command:
+
+```bash
+npm install --global openrouter-cli
+openrouter --help
+```
+
+## CLI usage
 
 ```bash
 # cheapest tool-capable text models
-node ./bin/openrouter.js models list --support tools --sort prompt-price --limit 10
+openrouter models list --support tools --sort prompt-price --limit 10
 
 # privacy-aware models for the current API key
-node ./bin/openrouter.js models user --json
+OPENROUTER_API_KEY=sk-or-v1-... openrouter models user --json
 
 # EU in-region filtered view
-node ./bin/openrouter.js models user --region eu
+openrouter models user --region eu
 
 # compare provider endpoint performance for one model
-node ./bin/openrouter.js models endpoints openai/gpt-4o-mini --sort latency
+openrouter models endpoints openai/gpt-4o-mini --sort latency
 
 # inspect the current key
-node ./bin/openrouter.js key info
+openrouter key info
 ```
 
-Run `node ./bin/openrouter.js --help` for the full command reference.
+Run `openrouter --help` for the full command reference.
+
+## Module usage
+
+```js
+import { OpenRouterClient, applyModelFilters } from "openrouter-cli";
+
+const client = new OpenRouterClient({
+  apiKey: process.env.OPENROUTER_API_KEY,
+});
+
+const { data } = await client.getUserModels();
+const models = applyModelFilters(data, {
+  support: "tools",
+  "max-prompt-price": 5,
+  limit: 5,
+});
+
+console.log(models.map((model) => model.id));
+```
+
+Available exports include:
+
+- `OpenRouterClient`
+- `OpenRouterError`
+- `resolveBaseUrl`
+- `parseArgs`
+- `applyModelFilters`
+- `normalizeModel`
+- `normalizeEndpoint`
+- `sortEndpoints`
+- `main`
+
+## Release flow
+
+Versioning and npm publication are handled by GitHub Actions.
+
+- `ci.yml` runs `npm ci`, `npm run build`, and `npm test` on pushes and pull requests.
+- `release.yml` uses release-please to open or update release PRs from Conventional Commit history.
+- When a release is cut on `main`, the workflow runs the same build and test steps before `npm publish`.
+
+Before the first publish, configure npm trusted publishing for this repository and point it at `release.yml`. npm documents that trusted publishing from GitHub Actions requires `id-token: write` and Node 22.14.0 or newer.
 
 ## Agent and script integration
 

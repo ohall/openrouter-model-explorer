@@ -3,12 +3,42 @@
   "version": "0.1.0",
   "description": "Dependency-light Node.js CLI for discovering and inspecting OpenRouter models.",
   "type": "module",
+  "exports": {
+    ".": "./src/index.js",
+    "./cli": "./src/cli.js",
+    "./package.json": "./package.json"
+  },
   "bin": {
     "openrouter": "./bin/openrouter.js"
   },
+  "files": [
+    "bin",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
+    "build": "npm pack --dry-run",
     "start": "node ./bin/openrouter.js",
     "test": "node --test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ohall/openrouter-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ohall/openrouter-cli/issues"
+  },
+  "homepage": "https://github.com/ohall/openrouter-cli#readme",
+  "keywords": [
+    "openrouter",
+    "cli",
+    "node",
+    "ai",
+    "models"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
   },
   "engines": {
     "node": ">=20"
