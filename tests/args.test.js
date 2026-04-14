@@ -33,7 +33,8 @@ test("parseArgs accumulates repeated options", () => {
 });
 
 test("parseArgs supports short aliases", () => {
-  const parsed = parseArgs(["models", "user", "-jh"]);
+  const parsed = parseArgs(["models", "user", "-jhv"]);
   assert.equal(parsed.options.json, true);
   assert.equal(parsed.options.help, true);
+  assert.equal(parsed.options.version, true);
 });

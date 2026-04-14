@@ -15,6 +15,7 @@ import {
 } from "./help.js";
 import { applyModelFilters, sortEndpoints } from "./models.js";
 import { OpenRouterClient, OpenRouterError, resolveBaseUrl } from "./openrouter-api.js";
+import packageJson from "../package.json" with { type: "json" };
 
 function write(message, stream = process.stdout) {
   stream.write(`${message}\n`);
@@ -273,6 +274,11 @@ export async function main(argv) {
 
   const { options, positionals } = parsed;
   const outputJson = wantsJsonOutput(argv, options);
+
+  if (options.version) {
+    write(`openrouter-cli ${packageJson.version}`);
+    return 0;
+  }
 
   if (options.help || positionals.length === 0) {
     const target = resolveHelpTarget(positionals);

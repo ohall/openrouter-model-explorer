@@ -21,6 +21,7 @@ Examples:
 
 Useful options:
   --json                      Emit JSON for agents and scripts
+  --version                   Show installed CLI version
   --timeout MS                HTTP timeout in milliseconds (default: 30000)
   --region eu                 Use https://eu.openrouter.ai/api/v1 for EU in-region filtering
   --base-url URL              Override the API base URL

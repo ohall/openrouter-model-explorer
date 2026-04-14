@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { main } from "../src/cli.js";
+import packageJson from "../package.json" with { type: "json" };
 
 function captureOutput(run) {
   const stdoutChunks = [];
@@ -114,4 +115,12 @@ test("fails fast on invalid timeout option", async () => {
       message: "Invalid value for --timeout: 0",
     },
   });
+});
+
+test("prints package version with --version", async () => {
+  const result = await captureOutput(() => main(["--version"]));
+
+  assert.equal(result.exitCode, 0);
+  assert.equal(result.stderr, "");
+  assert.equal(result.stdout, `openrouter-cli ${packageJson.version}\n`);
 });

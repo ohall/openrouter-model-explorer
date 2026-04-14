@@ -1,6 +1,7 @@
 const SHORT_ALIASES = {
   h: "help",
   j: "json",
+  v: "version",
 };
 
 function toOptionName(raw) {
