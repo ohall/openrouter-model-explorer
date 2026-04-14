@@ -111,7 +111,7 @@ function buildClient(options) {
     apiKey: options["api-key"] || process.env.OPENROUTER_API_KEY,
     baseUrl,
     referer: process.env.OPENROUTER_HTTP_REFERER,
-    appTitle: process.env.OPENROUTER_APP_TITLE || "openrouter-cli",
+    appTitle: process.env.OPENROUTER_APP_TITLE || "openrouter-model-explorer",
     timeoutMs: resolveTimeoutMs(options),
   });
 }
@@ -276,7 +276,7 @@ export async function main(argv) {
   const outputJson = wantsJsonOutput(argv, options);
 
   if (options.version) {
-    write(`openrouter-cli ${packageJson.version}`);
+    write(`openrouter-model-explorer ${packageJson.version}`);
     return 0;
   }
 

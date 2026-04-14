@@ -39,7 +39,7 @@ export class OpenRouterClient {
   constructor({
     apiKey,
     baseUrl,
-    appTitle = "openrouter-cli",
+    appTitle = "openrouter-model-explorer",
     referer,
     fetchImpl = globalThis.fetch,
     timeoutMs = 30_000,

@@ -1,5 +1,5 @@
 export function renderMainHelp() {
-  return `openrouter-cli
+  return `openrouter-model-explorer
 
 Discover OpenRouter models and provider endpoints without extra dependencies.
 

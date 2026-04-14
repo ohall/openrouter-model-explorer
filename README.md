@@ -1,23 +1,23 @@
-# openrouter-cli
+# openrouter-model-explorer
 
 Dependency-light Node.js package for OpenRouter model discovery. It works both as a CLI and as an importable module, using built-in Node APIs instead of runtime helper libraries.
 
 ## Install
 
 ```bash
-npm install openrouter-cli
+npm install openrouter-model-explorer
 ```
 
 For one-off CLI usage:
 
 ```bash
-npx openrouter-cli --help
+npx openrouter-model-explorer --help
 ```
 
 For a global command:
 
 ```bash
-npm install --global openrouter-cli
+npm install --global openrouter-model-explorer
 openrouter --help
 ```
 
@@ -45,7 +45,7 @@ Run `openrouter --help` for the full command reference.
 ## Module usage
 
 ```js
-import { OpenRouterClient, applyModelFilters } from "openrouter-cli";
+import { OpenRouterClient, applyModelFilters } from "openrouter-model-explorer";
 
 const client = new OpenRouterClient({
   apiKey: process.env.OPENROUTER_API_KEY,

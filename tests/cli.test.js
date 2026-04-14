@@ -122,5 +122,5 @@ test("prints package version with --version", async () => {
 
   assert.equal(result.exitCode, 0);
   assert.equal(result.stderr, "");
-  assert.equal(result.stdout, `openrouter-cli ${packageJson.version}\n`);
+  assert.equal(result.stdout, `openrouter-model-explorer ${packageJson.version}\n`);
 });
