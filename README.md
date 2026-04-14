@@ -81,7 +81,13 @@ Versioning and npm publication are handled by GitHub Actions.
 - `release.yml` uses release-please to open or update release PRs from Conventional Commit history.
 - When a release is cut on `main`, the workflow runs the same build and test steps before `npm publish`.
 
-Before the first publish, configure npm trusted publishing for this repository and point it at `release.yml`. npm documents that trusted publishing from GitHub Actions requires `id-token: write` and Node 22.14.0 or newer.
+Bootstrap note:
+
+- npm trusted publishing only works after the package already exists on npm.
+- Publish `openrouter-model-explorer` manually once from an npm account with publish rights.
+- After that first publish, configure npm trusted publishing for this repository and point it at `release.yml`.
+
+npm documents that trusted publishing from GitHub Actions requires `id-token: write`, Node 22.14.0 or newer, and an existing package record on npm.
 
 ## Agent and script integration
 

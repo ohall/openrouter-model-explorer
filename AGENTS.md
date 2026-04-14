@@ -37,5 +37,5 @@ This project intentionally avoids runtime dependencies. Prefer built-in Node API
 ## Configuration Tips
 - Use `OPENROUTER_API_KEY` for authenticated commands.
 - `OPENROUTER_REGION=eu` or `--region eu` targets the EU endpoint.
-- npm publishing is configured for GitHub Actions trusted publishing via `.github/workflows/release.yml`.
+- npm publishing is configured for GitHub Actions trusted publishing via `.github/workflows/release.yml`, but the package must be published manually once before npm trusted publishing can be attached.
 - Keep secrets out of the repo; `.env` is ignored.
