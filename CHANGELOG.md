@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/ohall/openrouter-model-explorer/compare/v1.0.0...v1.1.0) (2026-04-19)
+
+
+### Features
+
+* add privacy-aware model accessibility filters ([646cf35](https://github.com/ohall/openrouter-model-explorer/commit/646cf3513dc8aaa1116972f8c0d44ba3bdb75510))
+
+
+### Bug Fixes
+
+* prepare bootstrap npm publish ([5a0f8ec](https://github.com/ohall/openrouter-model-explorer/commit/5a0f8ec40c381357bb8394b04e0c5e12bd015846))
+
 ## 1.0.0 (2026-04-14)
 
 
