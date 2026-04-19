@@ -4,6 +4,15 @@ on:
   push:
     branches:
       - main
+  release:
+    types:
+      - published
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing git tag to publish, for example v1.1.0
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -12,9 +21,8 @@ permissions:
 
 jobs:
   release-please:
+    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
-    outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
 
     steps:
       - id: release
@@ -22,10 +30,8 @@ jobs:
         with:
           release-type: node
 
-  publish-npm:
-    if: ${{ needs.release-please.outputs.release_created == 'true' }}
-    needs:
-      - release-please
+  publish-npm-from-release:
+    if: ${{ github.event_name == 'release' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -33,6 +39,33 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.release.tag_name }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - run: npm test
+
+      - run: npm publish
+
+  publish-npm-from-dispatch:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.tag }}
 
       - uses: actions/setup-node@v4
         with:

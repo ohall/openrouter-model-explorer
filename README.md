@@ -85,16 +85,11 @@ Available exports include:
 Versioning and npm publication are handled by GitHub Actions.
 
 - `ci.yml` runs `npm ci`, `npm run build`, and `npm test` on pushes and pull requests.
-- `release.yml` uses release-please to open or update release PRs from Conventional Commit history.
-- When a release is cut on `main`, the workflow runs the same build and test steps before `npm publish`.
+- `release.yml` runs `release-please` on pushes to `main` to open or update release PRs from Conventional Commit history.
+- When a GitHub release is published, the same workflow checks out the release tag, runs `npm ci`, `npm run build`, and `npm test`, then publishes to npm with trusted publishing.
+- `release.yml` also supports manual recovery with `workflow_dispatch` and a `tag` input, so an existing tag such as `v1.1.0` can be published again after npm-side permissions are fixed.
 
-Bootstrap note:
-
-- npm trusted publishing only works after the package already exists on npm.
-- Publish `openrouter-model-explorer` manually once from an npm account with publish rights.
-- After that first publish, configure npm trusted publishing for this repository and point it at `release.yml`.
-
-npm documents that trusted publishing from GitHub Actions requires `id-token: write`, Node 22.14.0 or newer, and an existing package record on npm.
+npm trusted publishing from GitHub Actions requires `id-token: write`, Node 22.14.0 or newer, and the trusted publisher to be attached to the package on npm.
 
 ## Agent and script integration
 
