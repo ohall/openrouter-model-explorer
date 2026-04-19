@@ -1,7 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { applyModelFilters, normalizeEndpoint, normalizeModel, sortEndpoints } from "../src/models.js";
+import {
+  annotateModelAccess,
+  applyModelFilters,
+  normalizeEndpoint,
+  normalizeModel,
+  sortEndpoints,
+} from "../src/models.js";
 
 const baseModel = {
   id: "openai/gpt-4o-mini",
@@ -95,4 +101,38 @@ test("sortEndpoints orders by latency ascending", () => {
 test("applyModelFilters respects --limit 0", () => {
   const filtered = applyModelFilters([baseModel], { limit: 0 });
   assert.equal(filtered.length, 0);
+});
+
+test("annotateModelAccess flags whether a model is available to the current token", () => {
+  const annotated = annotateModelAccess(
+    [
+      baseModel,
+      {
+        ...baseModel,
+        id: "anthropic/claude-4",
+        canonical_slug: "anthropic/claude-4",
+      },
+    ],
+    [{ id: "openai/gpt-4o-mini", canonical_slug: "openai/gpt-4o-mini" }],
+  );
+
+  assert.deepEqual(
+    annotated.map((model) => [model.id, model.accessible_with_current_token]),
+    [
+      ["openai/gpt-4o-mini", true],
+      ["anthropic/claude-4", false],
+    ],
+  );
+});
+
+test("applyModelFilters supports filtering to accessible models only", () => {
+  const filtered = applyModelFilters(
+    [
+      { ...baseModel, accessible_with_current_token: true },
+      { ...baseModel, id: "anthropic/claude-4", accessible_with_current_token: false },
+    ],
+    { "accessible-only": true },
+  );
+
+  assert.deepEqual(filtered.map((model) => model.id), ["openai/gpt-4o-mini"]);
 });

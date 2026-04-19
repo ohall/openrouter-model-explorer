@@ -21,6 +21,19 @@ function arrayify(value) {
   return [];
 }
 
+function buildModelIdentitySet(models) {
+  const identities = new Set();
+  for (const model of models) {
+    if (model.id) {
+      identities.add(model.id);
+    }
+    if (model.canonical_slug) {
+      identities.add(model.canonical_slug);
+    }
+  }
+  return identities;
+}
+
 function hasAllParameters(model, requiredParameters) {
   if (requiredParameters.length === 0) {
     return true;
@@ -62,6 +75,16 @@ export function normalizeModel(model) {
   };
 }
 
+export function annotateModelAccess(models, accessibleModels) {
+  const accessibleIdentities = buildModelIdentitySet(accessibleModels);
+
+  return models.map((model) => ({
+    ...model,
+    accessible_with_current_token:
+      accessibleIdentities.has(model.id) || accessibleIdentities.has(model.canonical_slug),
+  }));
+}
+
 export function applyModelFilters(models, options = {}) {
   const normalized = models.map(normalizeModel);
   const requiredParameters = arrayify(options.support);
@@ -72,6 +95,7 @@ export function applyModelFilters(models, options = {}) {
   const maxCompletionPrice = toNumber(options["max-completion-price"]);
   const minContext = toNumber(options["min-context"]);
   const freeOnly = Boolean(options["free-only"]);
+  const accessibleOnly = Boolean(options["accessible-only"]);
 
   const filtered = normalized.filter((model) => {
     if (search) {
@@ -121,6 +145,10 @@ export function applyModelFilters(models, options = {}) {
       if (priceValues.some((value) => value !== 0)) {
         return false;
       }
+    }
+
+    if (accessibleOnly && model.accessible_with_current_token !== true) {
+      return false;
     }
 
     return true;

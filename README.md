@@ -27,6 +27,12 @@ openrouter --help
 # cheapest tool-capable text models
 openrouter models list --support tools --sort prompt-price --limit 10
 
+# check whether specific search results are actually usable with the current token
+OPENROUTER_API_KEY=sk-or-v1-... openrouter models list --search gpt-4o --check-access
+
+# keep only models allowed by the token's provider/privacy policy
+OPENROUTER_API_KEY=sk-or-v1-... openrouter models list --accessible-only --support tools
+
 # privacy-aware models for the current API key
 OPENROUTER_API_KEY=sk-or-v1-... openrouter models user --json
 
@@ -67,6 +73,7 @@ Available exports include:
 - `OpenRouterError`
 - `resolveBaseUrl`
 - `parseArgs`
+- `annotateModelAccess`
 - `applyModelFilters`
 - `normalizeModel`
 - `normalizeEndpoint`

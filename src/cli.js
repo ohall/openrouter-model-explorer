@@ -13,7 +13,7 @@ import {
   renderMainHelp,
   renderModelsListHelp,
 } from "./help.js";
-import { applyModelFilters, sortEndpoints } from "./models.js";
+import { annotateModelAccess, applyModelFilters, sortEndpoints } from "./models.js";
 import { OpenRouterClient, OpenRouterError, resolveBaseUrl } from "./openrouter-api.js";
 import packageJson from "../package.json" with { type: "json" };
 
@@ -116,8 +116,8 @@ function buildClient(options) {
   });
 }
 
-function renderModelRows(models) {
-  return renderTable(models, [
+function renderModelRows(models, options = {}) {
+  const columns = [
     { label: "Model", value: (model) => model.id },
     {
       label: "Prompt",
@@ -136,7 +136,16 @@ function renderModelRows(models) {
     { label: "Context", value: (model) => formatInteger(model.context_length) },
     { label: "Outputs", value: (model) => model.output_modalities.join(",") || "-" },
     { label: "Moderated", value: (model) => (model.is_moderated ? "yes" : "no") },
-  ]);
+  ];
+
+  if (options["check-access"] || options["accessible-only"]) {
+    columns.push({
+      label: "Access",
+      value: (model) => (model.accessible_with_current_token ? "yes" : "no"),
+    });
+  }
+
+  return renderTable(models, columns);
 }
 
 function renderEndpointRows(endpoints) {
@@ -154,8 +163,7 @@ function renderEndpointRows(endpoints) {
   ]);
 }
 
-async function handleModels(command, options) {
-  const client = buildClient(options);
+async function handleModels(command, options, client) {
   validateModelFilterOptions(options);
 
   if (command === "list") {
@@ -175,12 +183,19 @@ async function handleModels(command, options) {
     }
 
     const payload = await client.getModels(query);
-    const models = applyModelFilters(payload.data || [], options);
+    let models = payload.data || [];
+
+    if (options["check-access"] || options["accessible-only"]) {
+      const accessiblePayload = await client.getUserModels();
+      models = annotateModelAccess(models, accessiblePayload.data || []);
+    }
+
+    models = applyModelFilters(models, options);
     if (options.json) {
       write(JSON.stringify({ data: models }, null, 2));
       return 0;
     }
-    write(renderModelRows(models));
+    write(renderModelRows(models, options));
     return 0;
   }
 
@@ -191,7 +206,7 @@ async function handleModels(command, options) {
       write(JSON.stringify({ data: models }, null, 2));
       return 0;
     }
-    write(renderModelRows(models));
+    write(renderModelRows(models, options));
     return 0;
   }
 
@@ -223,13 +238,12 @@ async function handleModels(command, options) {
   return 1;
 }
 
-async function handleKey(command, options) {
+async function handleKey(command, options, client) {
   if (command !== "info") {
     write(renderKeyHelp());
     return 1;
   }
 
-  const client = buildClient(options);
   const payload = await client.getCurrentKey();
   const keyInfo = payload.data || {};
 
@@ -259,7 +273,7 @@ function resolveHelpTarget(positionals) {
   return positionals.join(" ").trim();
 }
 
-export async function main(argv) {
+export async function main(argv, { clientFactory = buildClient } = {}) {
   const jsonRequested = wantsJsonOutput(argv);
   let parsed;
   try {
@@ -320,12 +334,12 @@ export async function main(argv) {
     if (positionals[0] === "models") {
       const [_, subcommand, maybeModelId] = positionals;
       options._modelId = maybeModelId;
-      return await handleModels(subcommand, options);
+      return await handleModels(subcommand, options, clientFactory(options));
     }
 
     if (positionals[0] === "key") {
       const [_, subcommand] = positionals;
-      return await handleKey(subcommand, options);
+      return await handleKey(subcommand, options, clientFactory(options));
     }
 
     writeError(`Unknown command: ${positionals.join(" ")}`, { json: outputJson });

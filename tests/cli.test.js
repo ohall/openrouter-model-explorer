@@ -124,3 +124,128 @@ test("prints package version with --version", async () => {
   assert.equal(result.stderr, "");
   assert.equal(result.stdout, `openrouter-model-explorer ${packageJson.version}\n`);
 });
+
+test("models list --check-access annotates each result using /models/user", async () => {
+  const fakeClient = {
+    async getModels() {
+      return {
+        data: [
+          {
+            id: "openai/gpt-4o-mini",
+            canonical_slug: "openai/gpt-4o-mini",
+            pricing: { prompt: "0.00000015", completion: "0.0000006" },
+            architecture: { output_modalities: ["text"] },
+            top_provider: { is_moderated: true },
+            context_length: 128000,
+          },
+          {
+            id: "anthropic/claude-4",
+            canonical_slug: "anthropic/claude-4",
+            pricing: { prompt: "0.000003", completion: "0.000015" },
+            architecture: { output_modalities: ["text"] },
+            top_provider: { is_moderated: false },
+            context_length: 200000,
+          },
+        ],
+      };
+    },
+    async getUserModels() {
+      return {
+        data: [{ id: "openai/gpt-4o-mini", canonical_slug: "openai/gpt-4o-mini" }],
+      };
+    },
+  };
+
+  const result = await captureOutput(() =>
+    main(["models", "list", "--check-access", "--json"], {
+      clientFactory: () => fakeClient,
+    }),
+  );
+
+  assert.equal(result.exitCode, 0);
+  assert.equal(result.stderr, "");
+  assert.deepEqual(JSON.parse(result.stdout), {
+    data: [
+      {
+        id: "openai/gpt-4o-mini",
+        canonical_slug: "openai/gpt-4o-mini",
+        pricing: { prompt: "0.00000015", completion: "0.0000006" },
+        architecture: { output_modalities: ["text"] },
+        top_provider: { is_moderated: true },
+        context_length: 128000,
+        accessible_with_current_token: true,
+        prompt_price_per_million: 0.15,
+        completion_price_per_million: 0.6,
+        prompt_price_is_special: false,
+        completion_price_is_special: false,
+        request_price: null,
+        image_price: null,
+        input_modalities: [],
+        output_modalities: ["text"],
+        is_moderated: true,
+      },
+      {
+        id: "anthropic/claude-4",
+        canonical_slug: "anthropic/claude-4",
+        pricing: { prompt: "0.000003", completion: "0.000015" },
+        architecture: { output_modalities: ["text"] },
+        top_provider: { is_moderated: false },
+        context_length: 200000,
+        accessible_with_current_token: false,
+        prompt_price_per_million: 3,
+        completion_price_per_million: 15,
+        prompt_price_is_special: false,
+        completion_price_is_special: false,
+        request_price: null,
+        image_price: null,
+        input_modalities: [],
+        output_modalities: ["text"],
+        is_moderated: false,
+      },
+    ],
+  });
+});
+
+test("models list --accessible-only filters out inaccessible models", async () => {
+  const fakeClient = {
+    async getModels() {
+      return {
+        data: [
+          {
+            id: "openai/gpt-4o-mini",
+            canonical_slug: "openai/gpt-4o-mini",
+            pricing: { prompt: "0.00000015", completion: "0.0000006" },
+            architecture: { output_modalities: ["text"] },
+            top_provider: { is_moderated: true },
+            context_length: 128000,
+          },
+          {
+            id: "anthropic/claude-4",
+            canonical_slug: "anthropic/claude-4",
+            pricing: { prompt: "0.000003", completion: "0.000015" },
+            architecture: { output_modalities: ["text"] },
+            top_provider: { is_moderated: false },
+            context_length: 200000,
+          },
+        ],
+      };
+    },
+    async getUserModels() {
+      return {
+        data: [{ id: "openai/gpt-4o-mini", canonical_slug: "openai/gpt-4o-mini" }],
+      };
+    },
+  };
+
+  const result = await captureOutput(() =>
+    main(["models", "list", "--accessible-only", "--json"], {
+      clientFactory: () => fakeClient,
+    }),
+  );
+
+  assert.equal(result.exitCode, 0);
+  assert.equal(result.stderr, "");
+  const payload = JSON.parse(result.stdout);
+  assert.deepEqual(payload.data.map((model) => model.id), ["openai/gpt-4o-mini"]);
+  assert.equal(payload.data[0].accessible_with_current_token, true);
+});

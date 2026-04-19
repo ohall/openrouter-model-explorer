@@ -15,6 +15,8 @@ Commands:
 
 Examples:
   openrouter models list --max-prompt-price 5 --min-context 128000 --support tools
+  openrouter models list --search gpt-4o --check-access
+  openrouter models list --accessible-only --support tools
   openrouter models user --region eu --json
   openrouter models endpoints openai/gpt-4o-mini --sort latency
   OPENROUTER_API_KEY=sk-or-... openrouter key info
@@ -49,12 +51,15 @@ Filters:
   --min-context TOKENS        Minimum supported context length
   --modality NAME             Require output modality, for example text or image
   --support PARAM             Require a supported parameter, repeat or comma-separate values
+  --check-access              Mark whether each listed model is accessible for the current token
+  --accessible-only           Filter out models that are blocked by the current token's settings
   --free-only                 Keep only zero-cost models
   --sort FIELD                prompt-price, completion-price, context, newest, or name
   --limit N                   Limit the number of rows
   --json                      Emit JSON instead of a table
 
 Notes:
+  "--check-access" and "--accessible-only" call /api/v1/models/user and require an API key.
   "models user" calls /api/v1/models/user, which OpenRouter documents as filtering
   by user provider preferences, privacy settings, and guardrails.
   With --region eu, requests go to eu.openrouter.ai/api/v1.`;
